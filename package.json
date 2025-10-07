@@ -6,7 +6,7 @@
     "start": "expo start",
     "build": "expo export -p web",
     "serve": "caddy run --config Caddyfile --adapter caddyfile",
-    "serve:simple": "serve dist -p $PORT",
+    "serve:simple": "serve dist -p ${PORT:-8080}",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",

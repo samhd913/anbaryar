@@ -4,5 +4,5 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 RUN npm run build
-EXPOSE 3000
-CMD ["npm", "run", "serve:simple"]
+EXPOSE 8080
+CMD ["npx", "serve", "dist", "-p", "8080"]
