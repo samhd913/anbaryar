@@ -12,11 +12,25 @@ const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false // Disable CSP for now
+}));
 app.use(cors());
 app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Cookie parser
+app.use((req, res, next) => {
+  req.cookies = {};
+  if (req.headers.cookie) {
+    req.headers.cookie.split(';').forEach(cookie => {
+      const [name, value] = cookie.trim().split('=');
+      req.cookies[name] = value;
+    });
+  }
+  next();
+});
 
 // Database connection
 let db = null;
@@ -213,6 +227,13 @@ app.post('/api/auth/login', async (req, res) => {
       { expiresIn: '7d' }
     );
 
+    // Set cookie
+    res.cookie('authToken', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+
     res.json({
       success: true,
       message: 'Login successful',
@@ -238,6 +259,15 @@ app.get('/api/auth/verify', authenticateToken, (req, res) => {
   res.json({
     success: true,
     user: req.user
+  });
+});
+
+// Logout
+app.post('/api/auth/logout', (req, res) => {
+  res.clearCookie('authToken');
+  res.json({
+    success: true,
+    message: 'Logout successful'
   });
 });
 
@@ -309,6 +339,29 @@ app.post('/api/auth/change-password', authenticateToken, async (req, res) => {
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'dist')));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Auth middleware for protected routes
+const requireAuth = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Access token required' });
+  }
+  
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(403).json({ success: false, message: 'Invalid token' });
+  }
+};
+
+// Serve auth page for unauthenticated users
+app.get('/auth', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'auth.html'));
+});
 
 // Handle client-side routing - catch all non-API routes
 app.use((req, res, next) => {
@@ -317,7 +370,27 @@ app.use((req, res, next) => {
     return next();
   }
   
-  // Serve index.html for all other routes
+  // Skip auth page
+  if (req.path === '/auth') {
+    return next();
+  }
+  
+  // Check if user is authenticated
+  const token = req.cookies.authToken;
+  
+  if (!token) {
+    return res.redirect('/auth');
+  }
+  
+  // Verify token
+  try {
+    jwt.verify(token, JWT_SECRET);
+  } catch (error) {
+    res.clearCookie('authToken');
+    return res.redirect('/auth');
+  }
+  
+  // Serve index.html for authenticated users
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
