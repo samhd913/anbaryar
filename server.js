@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Database connection
-let db;
+let db = null;
 
 async function connectDB() {
   try {
@@ -31,11 +31,17 @@ async function connectDB() {
       hasPassword: !!process.env.MYSQLPASSWORD
     });
 
+    // Check if we have all required environment variables
+    if (!process.env.MYSQLHOST || !process.env.MYSQLPASSWORD) {
+      console.log('Missing database environment variables, starting without database...');
+      return;
+    }
+
     db = await mysql.createConnection({
-      host: process.env.MYSQLHOST || 'mysql.railway.internal',
+      host: process.env.MYSQLHOST,
       port: parseInt(process.env.MYSQLPORT || '3306'),
       user: process.env.MYSQLUSER || 'root',
-      password: process.env.MYSQLPASSWORD || '',
+      password: process.env.MYSQLPASSWORD,
       database: process.env.MYSQLDATABASE || 'railway',
       ssl: {
         rejectUnauthorized: false
@@ -61,7 +67,6 @@ async function connectDB() {
   } catch (error) {
     console.error('Database connection failed:', error);
     console.log('Starting server without database...');
-    // Don't exit, start server without database for now
     db = null;
   }
 }
@@ -92,7 +97,7 @@ app.post('/api/auth/register', async (req, res) => {
     if (!db) {
       return res.status(503).json({ 
         success: false, 
-        message: 'Database not available' 
+        message: 'Database not available. Please contact administrator.' 
       });
     }
 
