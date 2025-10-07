@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "caddy run --config Caddyfile --adapter caddyfile",
+    "startCommand": "caddy run --config Caddyfile --adapter caddyfile --port $PORT",
     "healthcheckPath": "/",
     "healthcheckTimeout": 100,
     "restartPolicyType": "ON_FAILURE",
