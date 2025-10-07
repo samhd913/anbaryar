@@ -1,5 +1,17 @@
 :{$PORT:3000} {
     root * dist
     file_server
+    
+    # Handle client-side routing
     try_files {path} /index.html
+    
+    # Health check endpoint
+    handle /health {
+        respond "OK" 200
+    }
+    
+    # Serve static files
+    handle {
+        try_files {path} /index.html
+    }
 }
