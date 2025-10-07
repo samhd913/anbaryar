@@ -1,50 +1,93 @@
-# Welcome to your Expo app 👋
+# انبار یار (Anbaryar) - سیستم مدیریت موجودی داروخانه
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+یک اپلیکیشن مدرن برای مدیریت موجودی داروخانه با قابلیت‌های پیشرفته.
 
-## Get started
+## 🚀 ویژگی‌ها
 
-1. Install dependencies
+- 📊 **مدیریت موجودی:** مدیریت کامل موجودی داروها
+- 📁 **واردات/صادرات Excel:** پشتیبانی از فایل‌های Excel
+- 🔍 **جستجو و فیلتر:** جستجوی پیشرفته و فیلتر کردن
+- 📱 **رابط کاربری مدرن:** طراحی زیبا و کاربرپسند
+- 📈 **گزارش‌گیری:** تولید گزارش‌های مختلف
+- 🧮 **شمارش فیزیکی:** امکان شمارش فیزیکی موجودی
 
-   ```bash
-   npm install
-   ```
+## 🛠️ تکنولوژی‌ها
 
-2. Start the app
+- **Frontend:** React Native + Expo
+- **Routing:** Expo Router
+- **State Management:** Zustand
+- **File Processing:** XLSX
+- **Testing:** Jest
+- **Deployment:** Railway
 
-   ```bash
-   npx expo start
-   ```
+## 📦 نصب و راه‌اندازی
 
-In the output, you'll find options to open the app in a
+### پیش‌نیازها
+- Node.js 18.x
+- npm یا yarn
+- Expo CLI
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
+### نصب
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### اجرای محلی
+```bash
+# شروع development server
+npm start
 
-## Learn more
+# اجرای روی وب
+npm run web
 
-To learn more about developing your project with Expo, look at the following resources:
+# build برای production
+npm run build
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## 🌐 Deploy روی Railway
 
-## Join the community
+این پروژه برای deploy روی Railway آماده شده است:
 
-Join our community of developers creating universal apps.
+1. **Build Command:** `npm run build`
+2. **Output Directory:** `dist`
+3. **Node.js Version:** 18.x
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### تنظیمات خودکار Railway
+- Railway به طور خودکار تنظیمات build را تشخیص می‌دهد
+- از Dockerfile برای client-side routing استفاده می‌کند
+- Caddy web server برای serving static files
+
+## 📁 ساختار پروژه
+
+```
+├── app/                    # صفحات اپلیکیشن (Expo Router)
+├── components/             # کامپوننت‌های قابل استفاده مجدد
+├── services/              # سرویس‌های backend
+├── models/                # مدل‌های داده
+├── viewmodels/            # View Models
+├── hooks/                 # Custom hooks
+├── constants/             # ثابت‌ها
+├── assets/                # فایل‌های استاتیک
+├── __tests__/             # تست‌ها
+├── Dockerfile             # تنظیمات Docker
+├── Caddyfile              # تنظیمات Caddy
+└── package.json           # وابستگی‌ها
+```
+
+## 🧪 تست
+
+```bash
+npm test
+```
+
+## 📄 لایسنس
+
+این پروژه تحت لایسنس MIT منتشر شده است.
+
+## 👨‍💻 توسعه‌دهنده
+
+**samhd913** - [GitHub](https://github.com/samhd913)
+
+---
+
+**انبار یار** - راه‌حل مدرن برای مدیریت موجودی داروخانه
