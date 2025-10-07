@@ -1,6 +1,6 @@
 import * as Sharing from 'expo-sharing';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
 
 import { FilePicker } from '../../components/FilePicker';
 import { CustomAlert } from '../../components/ui/CustomAlert';
@@ -8,6 +8,7 @@ import { CustomHeader } from '../../components/ui/CustomHeader';
 import { Colors } from '../../constants/colors';
 import { useCustomAlert } from '../../hooks/useCustomAlert';
 import { useInventory } from '../../viewmodels/InventoryViewModel';
+import { useAuthStore } from '../../stores/AuthStore';
 
 export default function SettingsScreen() {
   const {
@@ -20,6 +21,7 @@ export default function SettingsScreen() {
   } = useInventory();
 
   const { alertState, showSuccessAlert, showErrorAlert, showConfirmAlert, hideAlert } = useCustomAlert();
+  const { logout, user } = useAuthStore();
 
   const [stats, setStats] = useState({
     totalItems: 0,
@@ -109,6 +111,21 @@ export default function SettingsScreen() {
     );
   };
 
+  const handleLogout = () => {
+    Alert.alert(
+      'خروج از حساب',
+      'آیا مطمئن هستید که می‌خواهید از حساب خود خارج شوید؟',
+      [
+        { text: 'لغو', style: 'cancel' },
+        { 
+          text: 'خروج', 
+          style: 'destructive',
+          onPress: () => logout()
+        }
+      ]
+    );
+  };
+
   return (
     <ScrollView style={styles.container}>
       <CustomHeader 
@@ -169,6 +186,19 @@ export default function SettingsScreen() {
           onPress={handleClearData}
         >
           <Text style={styles.actionButtonText}>🧹 پاک‌سازی داده‌ها</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.userContainer}>
+        <Text style={styles.userTitle}>اطلاعات کاربر</Text>
+        <Text style={styles.userInfo}>نام کاربری: {user?.username}</Text>
+        <Text style={styles.userInfo}>نقش: {user?.role === 'admin' ? 'مدیر' : 'کاربر'}</Text>
+        
+        <TouchableOpacity
+          style={[styles.actionButton, styles.logoutButton]}
+          onPress={handleLogout}
+        >
+          <Text style={styles.actionButtonText}>🚪 خروج از حساب</Text>
         </TouchableOpacity>
       </View>
 
@@ -259,10 +289,31 @@ const styles = StyleSheet.create({
   clearButton: {
     backgroundColor: Colors.error,
   },
+  logoutButton: {
+    backgroundColor: Colors.warning,
+  },
   actionButtonText: {
     color: Colors.surface,
     fontSize: 16,
     fontWeight: '600',
+  },
+  userContainer: {
+    margin: 16,
+    padding: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  userTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: Colors.text,
+    marginBottom: 12,
+  },
+  userInfo: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    marginBottom: 4,
   },
   infoContainer: {
     margin: 16,
