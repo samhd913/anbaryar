@@ -281,8 +281,14 @@ app.post('/api/auth/change-password', authenticateToken, async (req, res) => {
 // Serve static files
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// Handle client-side routing - catch all routes
-app.get('/*', (req, res) => {
+// Handle client-side routing - catch all non-API routes
+app.use((req, res, next) => {
+  // Skip API routes
+  if (req.path.startsWith('/api/')) {
+    return next();
+  }
+  
+  // Serve index.html for all other routes
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
