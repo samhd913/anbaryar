@@ -55,7 +55,7 @@ export const useAuthStore = create<AuthState>()(
           }
         } catch (error) {
           set({ isLoading: false });
-          return { success: false, message: 'Network error' };
+          return { success: false, message: 'خطا در اتصال به سرور' };
         }
       },
 
@@ -82,7 +82,7 @@ export const useAuthStore = create<AuthState>()(
           }
         } catch (error) {
           set({ isLoading: false });
-          return { success: false, message: 'Network error' };
+          return { success: false, message: 'خطا در اتصال به سرور' };
         }
       },
 
