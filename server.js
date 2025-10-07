@@ -23,6 +23,14 @@ let db;
 
 async function connectDB() {
   try {
+    console.log('Database connection config:', {
+      host: process.env.MYSQLHOST,
+      port: process.env.MYSQLPORT,
+      user: process.env.MYSQLUSER,
+      database: process.env.MYSQLDATABASE,
+      hasPassword: !!process.env.MYSQLPASSWORD
+    });
+
     db = await mysql.createConnection({
       host: process.env.MYSQLHOST || 'mysql.railway.internal',
       port: parseInt(process.env.MYSQLPORT || '3306'),
@@ -52,7 +60,9 @@ async function connectDB() {
     console.log('Users table created/verified');
   } catch (error) {
     console.error('Database connection failed:', error);
-    process.exit(1);
+    console.log('Starting server without database...');
+    // Don't exit, start server without database for now
+    db = null;
   }
 }
 
@@ -79,6 +89,13 @@ const authenticateToken = (req, res, next) => {
 // Register
 app.post('/api/auth/register', async (req, res) => {
   try {
+    if (!db) {
+      return res.status(503).json({ 
+        success: false, 
+        message: 'Database not available' 
+      });
+    }
+
     const { username, email, password } = req.body;
 
     if (!username || !email || !password) {
@@ -140,6 +157,13 @@ app.post('/api/auth/register', async (req, res) => {
 // Login
 app.post('/api/auth/login', async (req, res) => {
   try {
+    if (!db) {
+      return res.status(503).json({ 
+        success: false, 
+        message: 'Database not available' 
+      });
+    }
+
     const { username, password } = req.body;
 
     if (!username || !password) {
