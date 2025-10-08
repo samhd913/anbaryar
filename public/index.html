@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>انبار یار - سیستم مدیریت موجودی</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        .logo {
+            width: 100px;
+            height: 100px;
+            background: #0072FF;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .status {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .features {
+            text-align: right;
+            margin: 20px 0;
+        }
+        
+        .feature {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .feature:last-child {
+            border-bottom: none;
+        }
+        
+        .feature-icon {
+            font-size: 20px;
+            margin-left: 10px;
+        }
+        
+        .btn {
+            background: #0072FF;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        
+        .info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: right;
+        }
+        
+        .info h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .info p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">ان</div>
+        <h1>انبار یار</h1>
+        <p class="subtitle">سیستم مدیریت موجودی داروخانه</p>
+        
+        <div class="status">
+            ✅ سیستم با موفقیت راه‌اندازی شد
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <span>📊 شمارش انبار</span>
+                <span class="feature-icon">✅</span>
+            </div>
+            <div class="feature">
+                <span>🏥 مدیریت داروها</span>
+                <span class="feature-icon">✅</span>
+            </div>
+            <div class="feature">
+                <span>📈 گزارشات</span>
+                <span class="feature-icon">✅</span>
+            </div>
+            <div class="feature">
+                <span>🔐 سیستم احراز هویت</span>
+                <span class="feature-icon">✅</span>
+            </div>
+        </div>
+        
+        <a href="/auth" class="btn">ورود به سیستم</a>
+        <a href="/api/health" class="btn btn-secondary">بررسی وضعیت</a>
+        
+        <div class="info">
+            <h3>درباره سیستم</h3>
+            <p>انبار یار یک سیستم پیشرفته مدیریت موجودی داروخانه است که با تکنولوژی‌های مدرن توسعه یافته است.</p>
+            <p>این سیستم شامل قابلیت‌های شمارش فیزیکی، مدیریت داروها، گزارش‌گیری و سیستم احراز هویت می‌باشد.</p>
+            <p><strong>توسعه‌دهنده:</strong> سجاد حیدری</p>
+            <p><strong>نسخه:</strong> 1.0.0</p>
+        </div>
+    </div>
+</body>
+</html>

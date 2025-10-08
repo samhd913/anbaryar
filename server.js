@@ -107,6 +107,16 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    database: db ? 'Connected' : 'Not connected',
+    version: '1.0.0'
+  });
+});
+
 // API Routes
 
 // Register
@@ -479,8 +489,8 @@ app.use((req, res, next) => {
     return res.redirect('/auth');
   }
   
-  // Serve index.html for authenticated users
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  // Serve simple index.html for authenticated users
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Start server
