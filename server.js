@@ -48,6 +48,10 @@ async function connectDB() {
     // Check if we have all required environment variables
     if (!process.env.PGHOST || !process.env.PGPASSWORD) {
       console.log('Missing database environment variables, starting without database...');
+      console.log('To setup PostgreSQL database:');
+      console.log('1. Go to Railway Dashboard');
+      console.log('2. Add PostgreSQL service');
+      console.log('3. Add environment variables: PGHOST, PGPORT, PGUSER, PGPASSWORD, PGDATABASE');
       return;
     }
 
@@ -85,6 +89,7 @@ async function connectDB() {
   } catch (error) {
     console.error('Database connection failed:', error);
     console.log('Starting server without database...');
+    console.log('Database will be available after PostgreSQL setup in Railway');
     db = null;
   }
 }
@@ -113,7 +118,15 @@ app.get('/api/health', (req, res) => {
     status: 'OK',
     timestamp: new Date().toISOString(),
     database: db ? 'Connected' : 'Not connected',
-    version: '1.0.0'
+    version: '1.0.0',
+    setup: {
+      database: !db ? 'PostgreSQL database not configured. Add PostgreSQL service in Railway Dashboard.' : 'Database ready',
+      environment: {
+        PGHOST: process.env.PGHOST ? 'Set' : 'Missing',
+        PGPASSWORD: process.env.PGPASSWORD ? 'Set' : 'Missing',
+        PGDATABASE: process.env.PGDATABASE ? 'Set' : 'Missing'
+      }
+    }
   });
 });
 
