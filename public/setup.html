@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>راهنمای راه‌اندازی دیتابیس - انبار یار</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: #0072FF;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .status {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .step {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-right: 4px solid #0072FF;
+        }
+        
+        .step-number {
+            background: #0072FF;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .step-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .step-content {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .code {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .warning {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .btn {
+            background: #0072FF;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px 5px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">ان</div>
+            <h1>راهنمای راه‌اندازی دیتابیس</h1>
+            <p class="subtitle">انبار یار - سیستم مدیریت موجودی</p>
+        </div>
+        
+        <div class="status">
+            ⚠️ <strong>وضعیت:</strong> دیتابیس PostgreSQL هنوز راه‌اندازی نشده است
+        </div>
+        
+        <div class="step">
+            <span class="step-number">1</span>
+            <div class="step-title">ایجاد PostgreSQL Database</div>
+            <div class="step-content">
+                <p>در Railway Dashboard:</p>
+                <ol>
+                    <li>به پروژه خود بروید</li>
+                    <li>روی دکمه <strong>"New"</strong> کلیک کنید</li>
+                    <li><strong>"Database"</strong> را انتخاب کنید</li>
+                    <li><strong>"PostgreSQL"</strong> را انتخاب کنید</li>
+                    <li>منتظر بمانید تا دیتابیس ایجاد شود</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="step">
+            <span class="step-number">2</span>
+            <div class="step-title">کپی کردن DATABASE_URL</div>
+            <div class="step-content">
+                <p>پس از ایجاد دیتابیس:</p>
+                <ol>
+                    <li>روی سرویس PostgreSQL کلیک کنید</li>
+                    <li>تب <strong>"Variables"</strong> را باز کنید</li>
+                    <li>مقدار <strong>DATABASE_URL</strong> را کپی کنید</li>
+                </ol>
+                <div class="code">
+                    DATABASE_URL=postgresql://postgres:password@postgres.railway.internal:5432/railway
+                </div>
+            </div>
+        </div>
+        
+        <div class="step">
+            <span class="step-number">3</span>
+            <div class="step-title">اضافه کردن متغیر محیطی</div>
+            <div class="step-content">
+                <p>در سرویس اپلیکیشن:</p>
+                <ol>
+                    <li>روی سرویس اپلیکیشن کلیک کنید</li>
+                    <li>تب <strong>"Variables"</strong> را باز کنید</li>
+                    <li>روی <strong>"New Variable"</strong> کلیک کنید</li>
+                    <li>نام: <code>DATABASE_URL</code></li>
+                    <li>مقدار: URL کپی شده از مرحله قبل</li>
+                    <li>روی <strong>"Add"</strong> کلیک کنید</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="step">
+            <span class="step-number">4</span>
+            <div class="step-title">Redeploy کردن اپلیکیشن</div>
+            <div class="step-content">
+                <p>پس از اضافه کردن متغیر:</p>
+                <ol>
+                    <li>روی سرویس اپلیکیشن کلیک کنید</li>
+                    <li>روی دکمه <strong>"Deploy"</strong> کلیک کنید</li>
+                    <li>منتظر بمانید تا deployment کامل شود</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="warning">
+            <strong>⚠️ نکته مهم:</strong> اگر از متغیرهای جداگانه استفاده می‌کنید، این متغیرها را اضافه کنید:
+            <div class="code">
+                PGHOST=postgres.railway.internal<br>
+                PGPORT=5432<br>
+                PGUSER=postgres<br>
+                PGPASSWORD=[your-password]<br>
+                PGDATABASE=railway
+            </div>
+        </div>
+        
+        <div class="success">
+            <strong>✅ پس از راه‌اندازی:</strong> سیستم به طور خودکار به دیتابیس متصل می‌شود و تمام قابلیت‌های احراز هویت فعال خواهند شد.
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/" class="btn">بازگشت به صفحه اصلی</a>
+            <a href="/api/health" class="btn btn-secondary">بررسی وضعیت سیستم</a>
+        </div>
+    </div>
+</body>
+</html>

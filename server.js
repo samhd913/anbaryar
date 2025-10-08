@@ -76,8 +76,13 @@ async function connectDB() {
       return;
     }
 
-    // Test connection
-    const client = await db.connect();
+    // Test connection with timeout
+    const client = await Promise.race([
+      db.connect(),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Connection timeout')), 10000)
+      )
+    ]);
     client.release();
     
     console.log('Database connected successfully');
@@ -99,7 +104,20 @@ async function connectDB() {
   } catch (error) {
     console.error('Database connection failed:', error);
     console.log('Starting server without database...');
-    console.log('Database will be available after PostgreSQL setup in Railway');
+    console.log('');
+    console.log('🔧 RAILWAY POSTGRESQL SETUP GUIDE:');
+    console.log('1. Go to Railway Dashboard → Your Project');
+    console.log('2. Click "New" → "Database" → "PostgreSQL"');
+    console.log('3. Wait for database to be created');
+    console.log('4. Copy the DATABASE_URL from the database service');
+    console.log('5. Go to your app service → Variables');
+    console.log('6. Add: DATABASE_URL = [copied-url]');
+    console.log('7. Redeploy your app service');
+    console.log('');
+    console.log('Alternative: Use individual variables:');
+    console.log('- PGHOST, PGPORT, PGUSER, PGPASSWORD, PGDATABASE');
+    console.log('');
+    console.log('Database will be available after proper setup');
     db = null;
   }
 }
@@ -486,6 +504,11 @@ const requireAuth = (req, res, next) => {
 
 // Serve root page
 app.get('/', (req, res) => {
+  // Check if database is connected
+  if (!db) {
+    return res.sendFile(path.join(__dirname, 'public', 'setup.html'));
+  }
+  
   // Check if user is authenticated
   const token = req.cookies.authToken;
   
