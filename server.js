@@ -51,9 +51,10 @@ async function connectDB() {
       console.log('DATABASE_URL:', process.env.DATABASE_URL.replace(/:[^:]*@/, ':***@')); // Hide password in logs
       db = new Pool({
         connectionString: process.env.DATABASE_URL,
-        ssl: {
-          rejectUnauthorized: false
-        }
+        ssl: process.env.NODE_ENV === 'production' ? {
+          rejectUnauthorized: false,
+          sslmode: 'require'
+        } : false
       });
     } else if (process.env.PGHOST && process.env.PGPASSWORD) {
       console.log('Using individual environment variables');
@@ -77,14 +78,19 @@ async function connectDB() {
       return;
     }
 
-    // Test connection with timeout
-    const client = await Promise.race([
-      db.connect(),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Connection timeout')), 10000)
-      )
-    ]);
-    client.release();
+    // Test connection with timeout and better error handling
+    try {
+      const client = await Promise.race([
+        db.connect(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Connection timeout after 10 seconds')), 10000)
+        )
+      ]);
+      client.release();
+    } catch (connectionError) {
+      console.error('Connection test failed:', connectionError.message);
+      throw connectionError;
+    }
     
     console.log('Database connected successfully');
     
