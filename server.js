@@ -45,27 +45,36 @@ async function connectDB() {
       hasPassword: !!process.env.PGPASSWORD
     });
 
-    // Check if we have all required environment variables
-    if (!process.env.PGHOST || !process.env.PGPASSWORD) {
+    // Check if we have DATABASE_URL (Railway's preferred method)
+    if (process.env.DATABASE_URL) {
+      console.log('Using DATABASE_URL connection string');
+      db = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: {
+          rejectUnauthorized: false
+        }
+      });
+    } else if (process.env.PGHOST && process.env.PGPASSWORD) {
+      console.log('Using individual environment variables');
+      db = new Pool({
+        host: process.env.PGHOST,
+        port: parseInt(process.env.PGPORT || '5432'),
+        user: process.env.PGUSER || 'postgres',
+        password: process.env.PGPASSWORD,
+        database: process.env.PGDATABASE || 'railway',
+        ssl: {
+          rejectUnauthorized: false
+        }
+      });
+    } else {
       console.log('Missing database environment variables, starting without database...');
       console.log('To setup PostgreSQL database:');
       console.log('1. Go to Railway Dashboard');
       console.log('2. Add PostgreSQL service');
       console.log('3. Add environment variables: PGHOST, PGPORT, PGUSER, PGPASSWORD, PGDATABASE');
+      console.log('4. Or use DATABASE_URL connection string');
       return;
     }
-
-    db = new Pool({
-      host: process.env.PGHOST,
-      port: parseInt(process.env.PGPORT || '5432'),
-      user: process.env.PGUSER || 'postgres',
-      password: process.env.PGPASSWORD,
-      database: process.env.PGDATABASE || 'railway',
-      ssl: process.env.NODE_ENV === 'production' ? {
-        rejectUnauthorized: false,
-        sslmode: 'require'
-      } : false
-    });
 
     // Test connection
     const client = await db.connect();
@@ -123,10 +132,14 @@ app.get('/api/health', (req, res) => {
     setup: {
       database: !db ? 'PostgreSQL database not configured. Add PostgreSQL service in Railway Dashboard.' : 'Database ready',
       environment: {
+        DATABASE_URL: process.env.DATABASE_URL ? 'Set' : 'Missing',
         PGHOST: process.env.PGHOST ? 'Set' : 'Missing',
         PGPASSWORD: process.env.PGPASSWORD ? 'Set' : 'Missing',
         PGDATABASE: process.env.PGDATABASE ? 'Set' : 'Missing'
-      }
+      },
+      recommendation: !process.env.DATABASE_URL && !process.env.PGHOST ? 
+        'Add DATABASE_URL or individual PostgreSQL environment variables' : 
+        'Database configuration looks good'
     }
   });
 });
@@ -496,8 +509,23 @@ app.get('/auth', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'auth.html'));
 });
 
-// Serve dashboard for any other route (SPA routing)
-app.get('/dashboard', (req, res) => {
+// Handle client-side routing - catch all non-API routes
+app.use((req, res, next) => {
+  // Skip API routes
+  if (req.path.startsWith('/api/')) {
+    return next();
+  }
+  
+  // Skip auth page
+  if (req.path === '/auth') {
+    return next();
+  }
+  
+  // Skip root page (already handled)
+  if (req.path === '/') {
+    return next();
+  }
+  
   // Check if user is authenticated
   const token = req.cookies.authToken;
   
@@ -508,19 +536,13 @@ app.get('/dashboard', (req, res) => {
   // Verify token
   try {
     jwt.verify(token, JWT_SECRET);
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
   } catch (error) {
     res.clearCookie('authToken');
     return res.redirect('/auth');
   }
-});
-
-// 404 handler for unknown routes
-app.use((req, res) => {
-  res.status(404).json({ 
-    error: 'Page not found',
-    message: 'The requested page does not exist'
-  });
+  
+  // Serve simple index.html for authenticated users
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Start server
