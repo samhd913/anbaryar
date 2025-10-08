@@ -61,9 +61,10 @@ async function connectDB() {
       user: process.env.PGUSER || 'postgres',
       password: process.env.PGPASSWORD,
       database: process.env.PGDATABASE || 'railway',
-      ssl: {
-        rejectUnauthorized: false
-      }
+      ssl: process.env.NODE_ENV === 'production' ? {
+        rejectUnauthorized: false,
+        sslmode: 'require'
+      } : false
     });
 
     // Test connection
@@ -470,13 +471,33 @@ const requireAuth = (req, res, next) => {
   }
 };
 
+// Serve root page
+app.get('/', (req, res) => {
+  // Check if user is authenticated
+  const token = req.cookies.authToken;
+  
+  if (!token) {
+    return res.redirect('/auth');
+  }
+  
+  // Verify token
+  try {
+    jwt.verify(token, JWT_SECRET);
+    // Serve dashboard for authenticated users
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  } catch (error) {
+    res.clearCookie('authToken');
+    return res.redirect('/auth');
+  }
+});
+
 // Serve auth page for unauthenticated users
 app.get('/auth', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'auth.html'));
 });
 
 // Handle client-side routing - catch all non-API routes
-app.use((req, res, next) => {
+app.get('*', (req, res, next) => {
   // Skip API routes
   if (req.path.startsWith('/api/')) {
     return next();
