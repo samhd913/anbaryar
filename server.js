@@ -496,23 +496,8 @@ app.get('/auth', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'auth.html'));
 });
 
-// Handle client-side routing - catch all non-API routes
-app.use((req, res, next) => {
-  // Skip API routes
-  if (req.path.startsWith('/api/')) {
-    return next();
-  }
-  
-  // Skip auth page
-  if (req.path === '/auth') {
-    return next();
-  }
-  
-  // Skip root page (already handled)
-  if (req.path === '/') {
-    return next();
-  }
-  
+// Serve dashboard for any other route (SPA routing)
+app.get('/dashboard', (req, res) => {
   // Check if user is authenticated
   const token = req.cookies.authToken;
   
@@ -523,13 +508,19 @@ app.use((req, res, next) => {
   // Verify token
   try {
     jwt.verify(token, JWT_SECRET);
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
   } catch (error) {
     res.clearCookie('authToken');
     return res.redirect('/auth');
   }
-  
-  // Serve simple index.html for authenticated users
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// 404 handler for unknown routes
+app.use((req, res) => {
+  res.status(404).json({ 
+    error: 'Page not found',
+    message: 'The requested page does not exist'
+  });
 });
 
 // Start server
