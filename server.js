@@ -48,6 +48,7 @@ async function connectDB() {
     // Check if we have DATABASE_URL (Railway's preferred method)
     if (process.env.DATABASE_URL) {
       console.log('Using DATABASE_URL connection string');
+      console.log('DATABASE_URL:', process.env.DATABASE_URL.replace(/:[^:]*@/, ':***@')); // Hide password in logs
       db = new Pool({
         connectionString: process.env.DATABASE_URL,
         ssl: {
