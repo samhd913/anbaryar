@@ -497,7 +497,7 @@ app.get('/auth', (req, res) => {
 });
 
 // Handle client-side routing - catch all non-API routes
-app.get('*', (req, res, next) => {
+app.use((req, res, next) => {
   // Skip API routes
   if (req.path.startsWith('/api/')) {
     return next();
@@ -505,6 +505,11 @@ app.get('*', (req, res, next) => {
   
   // Skip auth page
   if (req.path === '/auth') {
+    return next();
+  }
+  
+  // Skip root page (already handled)
+  if (req.path === '/') {
     return next();
   }
   
