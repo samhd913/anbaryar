@@ -3,7 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
-const mysql = require('mysql2/promise');
+const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -38,42 +38,46 @@ let db = null;
 async function connectDB() {
   try {
     console.log('Database connection config:', {
-      host: process.env.MYSQLHOST,
-      port: process.env.MYSQLPORT,
-      user: process.env.MYSQLUSER,
-      database: process.env.MYSQLDATABASE,
-      hasPassword: !!process.env.MYSQLPASSWORD
+      host: process.env.PGHOST,
+      port: process.env.PGPORT,
+      user: process.env.PGUSER,
+      database: process.env.PGDATABASE,
+      hasPassword: !!process.env.PGPASSWORD
     });
 
     // Check if we have all required environment variables
-    if (!process.env.MYSQLHOST || !process.env.MYSQLPASSWORD) {
+    if (!process.env.PGHOST || !process.env.PGPASSWORD) {
       console.log('Missing database environment variables, starting without database...');
       return;
     }
 
-    db = await mysql.createConnection({
-      host: process.env.MYSQLHOST,
-      port: parseInt(process.env.MYSQLPORT || '3306'),
-      user: process.env.MYSQLUSER || 'root',
-      password: process.env.MYSQLPASSWORD,
-      database: process.env.MYSQLDATABASE || 'railway',
+    db = new Pool({
+      host: process.env.PGHOST,
+      port: parseInt(process.env.PGPORT || '5432'),
+      user: process.env.PGUSER || 'postgres',
+      password: process.env.PGPASSWORD,
+      database: process.env.PGDATABASE || 'railway',
       ssl: {
         rejectUnauthorized: false
       }
     });
+
+    // Test connection
+    const client = await db.connect();
+    client.release();
     
     console.log('Database connected successfully');
     
     // Create users table
-    await db.execute(`
+    await db.query(`
       CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id SERIAL PRIMARY KEY,
         username VARCHAR(50) UNIQUE NOT NULL,
         email VARCHAR(100) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL,
-        role ENUM('admin', 'user') DEFAULT 'user',
+        role VARCHAR(20) DEFAULT 'user',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
     
@@ -174,12 +178,12 @@ app.post('/api/auth/register', async (req, res) => {
     }
 
     // Check if user exists
-    const [existingUser] = await db.execute(
-      'SELECT * FROM users WHERE username = ? OR email = ?',
+    const existingUser = await db.query(
+      'SELECT * FROM users WHERE username = $1 OR email = $2',
       [username, email]
     );
 
-    if (existingUser.length > 0) {
+    if (existingUser.rows.length > 0) {
       return res.status(400).json({ 
         success: false, 
         message: 'Username or email already exists' 
@@ -191,8 +195,8 @@ app.post('/api/auth/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // Create user
-    const [result] = await db.execute(
-      'INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)',
+    const result = await db.query(
+      'INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id',
       [username, email, hashedPassword, 'user']
     );
 
@@ -200,7 +204,7 @@ app.post('/api/auth/register', async (req, res) => {
       success: true,
       message: 'User registered successfully',
       user: {
-        id: result.insertId,
+        id: result.rows[0].id,
         username,
         email,
         role: 'user'
@@ -278,19 +282,19 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     // Get user from database
-    const [users] = await db.execute(
-      'SELECT * FROM users WHERE username = ?',
+    const users = await db.query(
+      'SELECT * FROM users WHERE username = $1',
       [username]
     );
 
-    if (users.length === 0) {
+    if (users.rows.length === 0) {
       return res.status(401).json({ 
         success: false, 
         message: 'Invalid credentials' 
       });
     }
 
-    const user = users[0];
+    const user = users.rows[0];
 
     // Verify password
     const isValidPassword = await bcrypt.compare(password, user.password);
